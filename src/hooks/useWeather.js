@@ -1,4 +1,6 @@
-const { useState } = require('react')
+import { useEffect } from "react"
+import { useState } from "react"
+
 
 const useWeather = () => {
   const [weatherData, setWeatherData] = useState({
@@ -20,7 +22,7 @@ const useWeather = () => {
   })
   const [error, setError] = useState(null)
 
-  const fetchWeatherdata = async (latitude, longitude) => {
+  const fetchWeatherData = async (latitude, longitude) => {
     try {
       setLoading({
         ...loading,
@@ -28,7 +30,11 @@ const useWeather = () => {
         message: 'Fetching Weather Data',
       })
       // Todo make the fetch call
-      const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${import.meta.env.VITE_WEATHER_API_KEY}&units=metric`)
+      const response = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${
+          import.meta.env.VITE_WEATHER_API_KEY
+        }&units=metric`
+      )
       if (!response.ok) {
         const errorMessage = `Fetching Weather Data failed : ${response.status}`
         throw new Error(errorMessage)
@@ -41,13 +47,14 @@ const useWeather = () => {
         temperature: data?.main?.temp,
         maxTemperature: data?.main?.temp_max,
         minTemperature: data?.main?.temp_min,
-        humidity: data?.main?.humidity ,
+        humidity: data?.main?.humidity,
         cloudPercentage: data?.clouds?.all,
         wind: data?.wind?.speed,
         time: data?.dt,
         longitude: longitude,
         latitude: latitude,
       }
+      setWeatherData(updateWeatherData)
     } catch (err) {
       setError(err)
     } finally {
@@ -58,4 +65,21 @@ const useWeather = () => {
       })
     }
   }
+
+  useEffect(() => {
+    setLoading({
+      loading: true,
+      message: 'Finding Location...',
+    })
+    navigator.geolocation.getCurrentPosition(function (position) {
+      fetchWeatherData(position.coords.latitude, position.coords.longitude)
+    })
+  }, [])
+  return {
+    weatherData,
+    error,
+    loading,
+  }
 }
+
+export default useWeather;

@@ -1,10 +1,13 @@
 import Header from "./Components/Header/Header";
 import WeatherBoard from "./Components/Weather/WeatherBoard";
 
+import { WeatherProvider } from "./provider";
+
 
 
 const App = () => {
   return (
+    <WeatherProvider>
     <div className="grid place-items-center h-screen">
     <Header />
     <main>
@@ -13,6 +16,7 @@ const App = () => {
       </section>
     </main>
     </div>
+    </WeatherProvider>
   );
 };
 
